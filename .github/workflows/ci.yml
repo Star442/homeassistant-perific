@@ -171,3 +171,48 @@ jobs:
         print(f'✓ Integration: {manifest[\"name\"]} v{manifest[\"version\"]}')
         print(f'✓ Type: {manifest[\"integration_type\"]}')
         "
+
+  hacs-validation:
+    name: HACS Compatibility
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Validate HACS compatibility
+      run: |
+        python -c "
+        import json
+        import os
+        import sys
+        
+        # Validate hacs.json exists
+        if not os.path.exists('hacs.json'):
+            print('❌ Missing hacs.json file')
+            sys.exit(1)
+        
+        with open('hacs.json') as f:
+            hacs_config = json.load(f)
+        
+        with open('custom_components/perific/manifest.json') as f:
+            manifest = json.load(f)
+        
+        # Check required HACS fields
+        required_hacs_fields = ['name', 'homeassistant']
+        missing_fields = [field for field in required_hacs_fields if field not in hacs_config]
+        
+        if missing_fields:
+            print(f'❌ Missing required HACS fields: {missing_fields}')
+            sys.exit(1)
+        
+        # Verify names match
+        if hacs_config.get('name') != manifest.get('name'):
+            print('⚠️ Warning: HACS name differs from manifest')
+        
+        # Verify domains exist
+        if 'domains' in hacs_config and hacs_config['domains']:
+            print(f'✓ HACS domains: {hacs_config[\"domains\"]}')
+        
+        print('✓ HACS configuration is valid')
+        print(f'✓ HACS Name: {hacs_config[\"name\"]}')
+        print(f'✓ Min Home Assistant: {hacs_config[\"homeassistant\"]}')
+        "
