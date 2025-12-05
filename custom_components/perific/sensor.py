@@ -126,7 +126,6 @@ class PerificSensorEntity(CoordinatorEntity, SensorEntity):
             "manufacturer": "Perific/Enegic",
             "model": item_info.get("subtype", "Energy Meter"),
             "sw_version": item_data.get("power", {}).get("firmware"),
-            "via_device": (DOMAIN, "perific_hub"),
         }
 
     @property
